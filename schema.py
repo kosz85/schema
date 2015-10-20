@@ -102,6 +102,13 @@ class Schema(object):
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self._schema)
 
+    @staticmethod
+    def _dict_key_priority(s):
+        """Return priority for a given key object."""
+        if isinstance(s, Optional):
+            return priority(s._schema) + 0.5
+        return priority(s)
+
     def validate(self, data, **kwargs):
         s = self._schema
         e = self._error
@@ -116,7 +123,7 @@ class Schema(object):
             x = None
             coverage = set()  # matched schema keys
             # for each key and value find a schema entry matching them, if any
-            sorted_skeys = sorted(s, key=priority)
+            sorted_skeys = sorted(s, key=self._dict_key_priority)
             for key, value in data.items():
                 valid = False
                 skey = None
